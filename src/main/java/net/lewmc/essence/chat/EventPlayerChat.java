@@ -12,11 +12,19 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.List;
 
+import org.bukkit.plugin.RegisteredServiceProvider;
+
+import org.bukkit.entity.Player;
+import org.bukkit.World;
+import net.luckperms.api.LuckPerms;
+import net.luckperms.api.model.user.User;
+
 /**
  * PlayerChatEvent fires when a player sends a message in chat.
  */
 public class EventPlayerChat implements Listener {
     private final Essence plugin;
+    private LuckPerms lp = null;
 
     /**
      * Constructs the class.
@@ -24,6 +32,10 @@ public class EventPlayerChat implements Listener {
      */
     public EventPlayerChat(Essence plugin) {
         this.plugin = plugin;
+        RegisteredServiceProvider<LuckPerms> lpProvider = this.plugin.getServer().getServicesManager().getRegistration(LuckPerms.class);
+
+        if (lpProvider != null)
+            lp = lpProvider.getProvider();
     }
 
     /**
@@ -33,7 +45,20 @@ public class EventPlayerChat implements Listener {
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if ((boolean) this.plugin.config.get("chat.manage-chat")) {
-            String msg = new UtilPlaceholder(this.plugin, event.getPlayer()).replaceAll(this.plugin.config.get("chat.name-format") + " " + event.getMessage());
+            String msg = event.getMessage();
+
+            Player player = event.getPlayer();
+            World world = player.getWorld();
+
+            if (lp != null)
+            {
+              User user = lp.getPlayerAdapter(Player.class).getUser(player);
+              String prefix = user.getCachedData().getMetaData().getPrefix();
+
+              msg = new UtilPlaceholder(this.plugin, event.getPlayer()).replaceAll(prefix + " %essence_player%: " + msg);
+            }
+            else
+              msg = new UtilPlaceholder(this.plugin, event.getPlayer()).replaceAll(this.plugin.config.get("chat.name-format") + " " + msg);
 
             if ((boolean) this.plugin.config.get("chat.allow-message-formatting")) {
                 msg = ChatColor.translateAlternateColorCodes('&', msg);

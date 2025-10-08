@@ -1,17 +1,19 @@
-{ mvnHash ? "sha256-4j2yU+X1x+hYI/MTG3d8NRfqoFdIDM3djwvZnhRuG+4=", }:
-
 {
   lib,
   maven,
   runCommand,
+
+  mvnHash ? "sha256-CYuKrJtLXS1PiL7ABaPJegAn0t++GqVPYiVxA6b7iLY=",
 }:
 let
   rawJar = maven.buildMavenPackage rec {
     pname = "essence-reloaded";
-    version = "1.9.0";
+    version = "1.10.2";
 
     src = ./.;
     inherit mvnHash;
+
+    mvnParameters = lib.escapeShellArgs [ "-Dmaven.javadoc.skip=true" ];
 
     installPhase = ''
       runHook preInstall

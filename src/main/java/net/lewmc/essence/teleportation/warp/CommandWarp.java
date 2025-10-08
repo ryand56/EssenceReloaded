@@ -1,6 +1,7 @@
 package net.lewmc.essence.teleportation.warp;
 
 import net.lewmc.essence.core.UtilMessage;
+import net.lewmc.essence.core.UtilPermission;
 import net.lewmc.essence.teleportation.tp.UtilTeleport;
 import net.lewmc.essence.Essence;
 import net.lewmc.foundry.Files;
@@ -46,6 +47,7 @@ public class CommandWarp extends FoundryPlayerCommand {
     @Override
     protected boolean onRun(CommandSender cs, Command command, String s, String[] args) {
         Player p = (Player) cs;
+        UtilPermission permission = new UtilPermission(this.plugin, cs);
 
         int waitTime = (int) plugin.config.get("teleportation.warp.wait");
         UtilMessage msg = new UtilMessage(this.plugin, cs);

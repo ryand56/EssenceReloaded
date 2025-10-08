@@ -66,7 +66,8 @@ public class CommandWarp extends FoundryPlayerCommand {
                 return true;
             }
 
-            if (config.getString("warps." + args[0].toLowerCase() + ".world") == null) {
+            String world = config.getString("warps." + args[0].toLowerCase() + ".world");
+            if (world == null) {
                 config.close();
                 msg.send("generic", "exception");
                 this.log.warn("Player " + p + " attempted to warp to " + args[0].toLowerCase() + " but couldn't due to an error.");
@@ -74,14 +75,17 @@ public class CommandWarp extends FoundryPlayerCommand {
                 return true;
             }
 
+            if (Bukkit.getServer().getPluginManager().getPlugin("Multiverse-Core") != null && !permission.has("multiverse.access." + world))
+            {
+              permission.not();
+              return false;
+            }
+
             teleUtil.setCooldown(p, "warp");
 
-            World world = Bukkit.getServer().getWorld(config.getString("warps." + args[0].toLowerCase() + ".world"));
-            
-            if (world == null) {
-                msg.send("generic", "exception");
-                this.log.warn("Player " + p + " attempted to warp to " + args[0].toLowerCase() + " but couldn't due to an error.");
-                log.warn("Error: world is null, please check configuration file.");
+            if (Bukkit.getServer().getWorld(world) == null) {
+                WorldCreator creator = new WorldCreator(world);
+                creator.createWorld();
             }
 
             if (waitTime > 0) {
@@ -92,7 +96,7 @@ public class CommandWarp extends FoundryPlayerCommand {
 
             teleUtil.doTeleport(
                     p,
-                    world,
+                    Bukkit.getServer().getWorld(Objects.requireNonNull(world)),
                     config.getDouble("warps." + args[0].toLowerCase() + ".X"),
                     config.getDouble("warps." + args[0].toLowerCase() + ".Y"),
                     config.getDouble("warps." + args[0].toLowerCase() + ".Z"),

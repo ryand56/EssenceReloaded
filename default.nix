@@ -3,12 +3,12 @@
   maven,
   runCommand,
 
-  mvnHash ? "sha256-CYuKrJtLXS1PiL7ABaPJegAn0t++GqVPYiVxA6b7iLY=",
+  mvnHash ? "sha256-OdvVHEJ9U7el370ep2ZZESqZAv/JpFpYpSseL+tun98=",
 }:
 let
   rawJar = maven.buildMavenPackage rec {
     pname = "essence-reloaded";
-    version = "1.10.2";
+    version = "1.11.1";
 
     src = ./.;
     inherit mvnHash;
